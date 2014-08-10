@@ -1,11 +1,10 @@
 piratebay-alfred-workflow
-=========================
 
 ## summary
-This is a workflow for Alfred App (Mac OSX) to crawl [piratebay](http://thepiratebay.se/ “the pirate bay”) and return magnet links with proper information.
+This is a workflow for [Alfred App](http://www.alfredapp.com/ “Alfred App official website”) (Mac OSX) to crawl [piratebay](http://thepiratebay.se/ “the pirate bay”) and return magnet links with proper information.
 
 ## quick use
-just download the [`Piratebay.alfredworkflow` file](https://github.com/Sheraff/piratebay-alfred-workflow/blob/master/Piratebay.alfredworkflow?raw=true “link to direct download”) and open with Alfred.
+Just download the [`Piratebay.alfredworkflow` file](https://github.com/Sheraff/piratebay-alfred-workflow/blob/master/Piratebay.alfredworkflow?raw=true “link to direct download”) and open with Alfred.
 
 Alternatively, use `Packal` through [the website](http://www.packal.org/workflow/piratebay “link to the workflow’s Packal page”) or through the Alfred workflow.
 
