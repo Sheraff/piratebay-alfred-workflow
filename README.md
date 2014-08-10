@@ -1,4 +1,5 @@
 piratebay-alfred-workflow
+=========================
 
 ## summary
 This is a workflow for [Alfred App](http://www.alfredapp.com/ “Alfred App official website”) (Mac OSX) to crawl [piratebay](http://thepiratebay.se/ “the pirate bay”) and return magnet links with proper information.
@@ -11,11 +12,11 @@ Alternatively, use `Packal` through [the website](http://www.packal.org/workflow
 ## overview of the workflow
 This is a quick draft of a remodeled version of a piratebay workflow for Alfred App. APIfy is closing and we need an alternative. Don't hesitate to collaborate, there is a lot that could be improved.
 
-This project uses
+### This project uses
 - [David Ferguson's `workflows` php class](http://dferg.us/workflows-class/ "Workflows Class")
 - [Mafintosh's `peerflix` node](https://github.com/mafintosh/peerflix "peerflix on github") for NodeJS
 
-Improvement ideas are
+### Improvement ideas are
 - visible history of previous downloads (any previously triggered magnet appears with a checked box)
 - only add the 'streaming' alternative if the user has peerflix and nodejs installed
 - create a quick tutorial (or refer to one) on how to install nodejs and peerflix
