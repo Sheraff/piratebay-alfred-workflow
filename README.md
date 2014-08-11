@@ -9,6 +9,11 @@ Just download the [`Piratebay.alfredworkflow` file](https://github.com/Sheraff/p
 
 Alternatively, use `Packal` through [the website](http://www.packal.org/workflow/piratebay "link to the workflow’s Packal page") or through the Alfred workflow.
 
+## my country blocks piratebay
+*Step 1.* If you are accessing the internet through an internet provider that is currently blocking piratebay, you can still find a [list of proxies](http://proxybay.info/ "proxies list") that do have acces to the site. Choose one that works for you (possibly close to your country).
+
+*Step 2.* Go to Alfred Preferences and within the Piratebay workflow, edit the first `script filter`. Somewhere at the top is the line where you define piratebay's address: `$pirate_url = "http://thepiratebay.se";`. Replace the official address with the one of your proxy. Save. *Enjoy.*
+
 ## overview of the workflow
 This is a quick draft of a remodeled version of a piratebay workflow for Alfred App. APIfy is closing and we need an alternative. Don't hesitate to collaborate, there is a lot that could be improved.
 
