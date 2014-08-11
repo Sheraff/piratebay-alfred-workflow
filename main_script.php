@@ -1,6 +1,4 @@
 <?php
-	//TODO
-	// suggest proper category when the name is wrong (with `similar_text()`)
 
 	$query = "Video ➔ Movies ➔ aloud";
 	$query = "{query}";
@@ -9,6 +7,7 @@
 	$w = new Workflows();
 
 	//vars
+	$pirate_url = "http://thepiratebay.se";
 	$cache = $w->cache(); //replace with alfred's cache
 	$expiration = time() - 2 * 3600; //2 hours
 	$table_id = "searchResult";
@@ -201,7 +200,7 @@
 
 	//defaults to curl if page not in cache
 	if (count($cachedPages) <= 0 || $tempTime <= $expiration) {
-		$handle = curl_init("http://thepiratebay.se/search/".urlencode($search)."/0/7/$category");
+		$handle = curl_init("$pirate_url/search/".urlencode($search)."/0/7/$category");
 		curl_setopt($handle, CURLOPT_RETURNTRANSFER, TRUE);
 		curl_setopt($handle, CURLOPT_FOLLOWLOCATION, 1);
 		curl_setopt($handle, CURLOPT_CONNECTTIMEOUT, 20);
@@ -261,9 +260,8 @@
 			$argument = serialize(array(
 				"title" => $title,
 				"magnet" => $magnet,
-				"link" => $link,
-				"category" => $category,
-				"search" => urlencode($search))
+				"link" => "$pirate_url$link",
+				"search" => "$pirate_url/search/".urlencode($search)."/0/7/$category")
 			);
 
 			$w->result( $id, $argument, $title, "$main_type ($sub_type), Size: $size, Seeders: $seed, Leechers: $leech, for \"$search\"", "", 'yes', $title );

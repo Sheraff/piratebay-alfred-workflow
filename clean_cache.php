@@ -1,7 +1,6 @@
 <?php
 require_once ('workflows.php');
 $w = new Workflows();
-$cachedPages = glob("$cache/*");
 
 // $cache = $w->cache();
 $cache = "cache";
