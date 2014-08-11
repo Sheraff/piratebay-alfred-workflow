@@ -1,8 +1,10 @@
 <?php
 	//user settings
 	$pirate_url = "http://thepiratebay.se"; //replace here with a proxy if the main address is blocked in your country
-	$expiration = time() - 2 * 3600; //all searches will be kept in cache for 2 hours making every renewed search instant
+	$expiration = 2; //all searches will be kept in cache for 2 hours making every renewed search instant
 	$split_symbol = " ➔ "; //this is the string that goes between the category and the rest of the query
+	$history_symbol = "(✓) "; //this is the string that will be prefixed to the subtitle of torrent that has been downloaded (magnet or streaming)
+	$enable_history = true; //boolean flag to enable or disable the history function.
 	$min_query = 3; //this means that at 3 characters and lower, the query won't start. This makes the workflow faster.
 
 	//other vars
@@ -13,6 +15,7 @@
 	$w = new Workflows();
 	$cache = $w->cache();
 	$pirate_url = preg_replace("/\/$/", "", $pirate_url);
+	$expiration = time() - $expiration * 3600;
 	$categories = array(
 		100 => "Audio",
 		101 => "Music",
@@ -83,7 +86,6 @@
 		}
 		if(!$matched_category){
 			// <------------------------------------------------------------------ END POINT 0.1: error in main category name
-			// echo "the category \"".current($parts)."\" is invalid\n";
 			$w->result( '', '', "The primary category \"".current($parts)."\" is invalid", "Try another category or remove the '$split_symbol' character to search normally", "", 'no', '' );
 			echo $w->toxml();
 			return;
@@ -104,7 +106,6 @@
 		}
 		if(!$matched_category){
 			// <------------------------------------------------------------------ END POINT 0.2: error in sub category name
-			// echo "the category \"".current($parts)."\" is invalid\n";
 			$w->result( '', '', "The subcategory \"".current($parts)."\" is invalid", "Try another category or remove the '$split_symbol' character to search normally", "", 'no', '' );
 			echo $w->toxml();
 			return;
@@ -120,7 +121,6 @@
 				$matched_category = true;
 				foreach ($categories as $key => $name) {
 					if($key%100==0){
-						// echo "$name\n";
 						$w->result( $key, $name, $name, "Tab to search for $name only", "", 'no', "$name$split_symbol" );
 					}
 				}
@@ -133,7 +133,6 @@
 							if($key%100!=0){
 								$name = $categories[100*floor($key/100)].$split_symbol.$name;
 							}
-							// echo "$name\n";
 							$w->result( $key, $name, $name, "Tab to search for $name only", "", 'no', "$name$split_symbol" );
 							break;
 						}
@@ -147,7 +146,6 @@
 				foreach ($categories as $key => $name) {
 					if(floor($key/100)==$main_category/100 && $key!=$main_category){
 						$name = $categories[$main_category].$split_symbol.$name;
-						// echo "$name\n";
 						$w->result( $key, $name, $name, "Tab to search for $name only", "", 'no', "$name$split_symbol" );
 					}
 				}
@@ -159,7 +157,6 @@
 							if(strpos(strtolower($particule), strtolower(end($parts))) === 0){
 								$matched_category = true;
 								$name = $categories[$main_category].$split_symbol.$name;
-								// echo "$name\n";
 								$w->result( $key, $name, $name, "Tab to search for $name only", "", 'no', "$name$split_symbol" );
 								break;
 							}
@@ -170,7 +167,6 @@
 		}
 		if(!$matched_category){
 			// <------------------------------------------------------------------ END POINT 1: error, query too short
-			// echo "query too short, keep typing\n";
 			if(strlen(end($parts))==0)
 				$subtitle = "Type a query to get the magic going :)";
 			else
@@ -223,7 +219,6 @@
 				$doc->loadHTML(file_get_contents($cachedPages[0]));
 			}
 			else{
-				// echo "no archive, no cache, no connection\n";
 				$w->result( '', '', "The query \"$search\" couldn't reach piratebay.", "We do not have \"$search\" in cache nor in the archives and piratebay can't be reached...", "", 'no', '' );
 				echo $w->toxml();
 				// <------------------------------------------------------------------ END POINT 3: error, piratebay unavailable
@@ -235,12 +230,18 @@
 	//extracting results
 	$results = $doc->getElementById($table_id);
 	if(!$results){
-		// echo "no result\n";
 		$w->result( '', '', "No result for \"$search\"", "No hits. Try adding an asterisk in you search phrase.", "", 'no', '' );
 		echo $w->toxml();
 		// <-------------------------------------------------------------------------- END POINT 4: error, no result
 		return;
 	}
+
+	//loading history
+	$history = array();
+	if(file_exists("$cache/history.db") && $enable_history){
+		$history = unserialize(file_get_contents("$cache/history.db"));
+	}
+
 	foreach ($results->childNodes as $node){
 		if(strcmp($node->nodeName, "thead") !== 0){
 			$items = $node->getElementsByTagName('td');
@@ -254,16 +255,17 @@
 			$seed = $items->item(2)->nodeValue;
 			$leech = $items->item(3)->nodeValue;
 
-			// echo "$main_type, $sub_type, $id, $title, $size, $seed, $leech, $magnet\n\n";
-
 			$argument = serialize(array(
+				"id" => $id,
 				"title" => $title,
 				"magnet" => $magnet,
 				"link" => "$pirate_url$link",
 				"search" => "$pirate_url/search/".urlencode($search)."/0/7/$category")
 			);
 
-			$w->result( $id, $argument, $title, "$main_type ($sub_type), Size: $size, Seeders: $seed, Leechers: $leech, for \"$search\"", "", 'yes', $title );
+			$checkmark = (in_array($id, $history) && $enable_history)?$history_symbol:"";
+
+			$w->result( $id, $argument, $title, "$checkmark$main_type ($sub_type), Size: $size, Seeders: $seed, Leechers: $leech, for \"$search\"", "", 'yes', $title );
 		}
 	}
 	// <-------------------------------------------------------------------------- END POINT 5: output results
