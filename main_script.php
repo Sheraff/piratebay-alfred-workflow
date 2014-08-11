@@ -1,18 +1,18 @@
 <?php
+	//user settings
+	$pirate_url = "http://thepiratebay.se"; //replace here with a proxy if the main address is blocked in your country
+	$expiration = time() - 2 * 3600; //all searches will be kept in cache for 2 hours making every renewed search instant
+	$split_symbol = " ➔ "; //this is the string that goes between the category and the rest of the query
+	$min_query = 3; //this means that at 3 characters and lower, the query won't start. This makes the workflow faster.
 
-	$query = "Video ➔ Movies ➔ aloud";
+	//other vars
+	$table_id = "searchResult";
+	$category = 0;
 	$query = "{query}";
-
 	require_once('workflows.php');
 	$w = new Workflows();
-
-	//vars
-	$pirate_url = "http://thepiratebay.se";
-	$cache = $w->cache(); //replace with alfred's cache
-	$expiration = time() - 2 * 3600; //2 hours
-	$table_id = "searchResult";
-	$split_symbol = " ➔ ";
-	$min_query = 3;
+	$cache = $w->cache();
+	$pirate_url = preg_replace("/\/$/", "", $pirate_url);
 	$categories = array(
 		100 => "Audio",
 		101 => "Music",
@@ -67,7 +67,6 @@
 	);
 
 	//parse query
-	$category = 0;
 	$parts = explode($split_symbol, $query);
 
 	if(count($parts)>1){
