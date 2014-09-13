@@ -10,7 +10,7 @@
 	//other vars
 	$table_id = "searchResult";
 	$category = 0;
-	$query = "{query}";
+	$query = $argv[1];
 	require_once('workflows.php');
 	$w = new Workflows();
 	$cache = $w->cache();
