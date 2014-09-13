@@ -30,6 +30,7 @@ This is a quick draft of a remodeled version of a piratebay workflow for Alfred 
 - deal with deleting from cache / writing to cache (in `main_script.php`) in a separate thread to prevent slow downs
 
 ## detailed view of the various files
+- `launcher` is a quick bash script that tests the query from Alfred in order to only start up PHP if it actually is required. If the query is empty, it simply returns a static XML of the search categories.
 - `main_script.php` is the main script behind everything. It parses the query, goes through the cache (2 hours) & archive (2 days) and eventually fetches and crawls piratebay if necessary (and writes the result in cache).
 - `clean_cache.php` is a script run after every validation (when the user presses enter with none or any of the modifier keys). It cleans the cache based on expiration date (set to 2 days). It is only run after the execution to prevent slowing down the display of results.
 - `history_log.php` is the step that takes care of logging the piratebay ID of the torrent that was just downloaded (magnet or stream) in a file called `history.db` and that is just a serialized php array.
