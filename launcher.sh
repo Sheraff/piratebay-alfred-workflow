@@ -14,7 +14,7 @@ elif [[ ${VAR:0:1} == " " ]] && [[ "${#VAR}" -gt 1 ]]; then
 	if [[ ! -f ${PHP_PID_FILE} ]]; then
 		php main_script.php "${VAR:1}"
 	else
-		curl --max-time 1 localhost:6743/main_script.php -d query="${VAR:1}"
+		curl localhost:6743/main_script.php -d query="${VAR:1}"
 	fi
 fi
 

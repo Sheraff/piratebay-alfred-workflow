@@ -210,7 +210,7 @@
 		$httpCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
 		curl_close($handle);
 
-		if ($newPage !== FALSE && $httpCode == 200) {
+		if (!empty($newPage) && $httpCode == 200) {
 			if (count($cachedPages) > 0) unlink($cachedPages[0]);
 			elseif (!file_exists("$cache/$search/$category/")) {
 				mkdir("$cache/$search/$category/", 0777, true);
@@ -218,12 +218,17 @@
 			file_put_contents("$cache/$search/$category/" . time() . ".html", $newPage);
 			$doc->loadHTML($newPage);
 		}
-		if ($newPage === FALSE) {
+		if (empty($newPage)) {
 			$cachedPages = glob("$cache/$search/$category/*.html");
+			$in_archive = false;
 			if (count($cachedPages) > 0){
-				$doc->loadHTML(file_get_contents($cachedPages[0]));
+				$str = file_get_contents($cachedPages[0]);
+				if(!empty($str)){
+					$doc->loadHTML($str);
+					$in_archive = true;
+				}
 			}
-			else{
+			if(!$in_archive){
 				$w->result( '', '', "The query \"$search\" couldn't reach piratebay.", "We do not have \"$search\" in cache nor in the archives and piratebay can't be reached...", "", 'no', '' );
 				echo $w->toxml();
 				// <------------------------------------------------------------------ END POINT 3: error, piratebay unavailable
