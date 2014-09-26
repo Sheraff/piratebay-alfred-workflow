@@ -200,16 +200,18 @@
 
 	//defaults to curl if page not in cache
 	if (count($cachedPages) <= 0 || $tempTime <= $expiration || !$in_archive) {
-		$handle = curl_init("$pirate_url/search/".urlencode($search)."/0/7/$category");
-		curl_setopt($handle, CURLOPT_RETURNTRANSFER, TRUE);
-		curl_setopt($handle, CURLOPT_FOLLOWLOCATION, 1);
-		curl_setopt($handle, CURLOPT_CONNECTTIMEOUT, 20);
-		curl_setopt($handle, CURLOPT_TIMEOUT, 20);
-		curl_setopt($handle, CURLOPT_ENCODING, 'gzip,deflate,sdch');
-		$newPage = curl_exec($handle);
-		$httpCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
+		$curltime=time();
+		do{
+			$handle = curl_init("$pirate_url/search/".urlencode($search)."/0/7/$category");
+			curl_setopt($handle, CURLOPT_RETURNTRANSFER, TRUE);
+			curl_setopt($handle, CURLOPT_FOLLOWLOCATION, 1);
+			curl_setopt($handle, CURLOPT_CONNECTTIMEOUT, 20);
+			curl_setopt($handle, CURLOPT_TIMEOUT, 20);
+			curl_setopt($handle, CURLOPT_ENCODING, 'gzip,deflate,sdch');
+			$newPage = curl_exec($handle);
+			$httpCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
+		} while ((empty($newPage) || $httpCode != 200) && time()-$curltime<2);
 		curl_close($handle);
-
 		if (!empty($newPage) && $httpCode == 200) {
 			if (count($cachedPages) > 0) unlink($cachedPages[0]);
 			elseif (!file_exists("$cache/$search/$category/")) {
@@ -217,8 +219,7 @@
 			}
 			file_put_contents("$cache/$search/$category/" . time() . ".html", $newPage);
 			$doc->loadHTML($newPage);
-		}
-		if (empty($newPage)) {
+		} else {
 			$cachedPages = glob("$cache/$search/$category/*.html");
 			$in_archive = false;
 			if (count($cachedPages) > 0){
