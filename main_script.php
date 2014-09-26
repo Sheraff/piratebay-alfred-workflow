@@ -117,7 +117,7 @@
 		$matched_category = false;
 		if(count($parts)==1){ // there is no main category
 			if(strlen($query)==0){
-				// output main categories
+				// output main categories (should never be reached)
 				$matched_category = true;
 				foreach ($categories as $key => $name) {
 					if($key%100==0){
@@ -182,24 +182,14 @@
 	$search = end($parts);
 
 
-	//create document
-	$doc = new DOMDocument('1.0', 'UTF-8');
-	libxml_use_internal_errors(true);
 
-	//try retreiving from cache
-	$cachedPages = glob("$cache/$search/$category/*.html");
-	$tempTime = explode("\.", basename($cachedPages[0]))[0];
-	$in_archive = false;
-	if (count($cachedPages) > 0 && $tempTime > $expiration) {
-		$str = file_get_contents($cachedPages[0]);
-		if(!empty($str)){
-			$doc->loadHTML($str);
-			$in_archive = true;
-		}
-	}
-
-	//defaults to curl if page not in cache
-	if (count($cachedPages) <= 0 || $tempTime <= $expiration || !$in_archive) {
+	$cachedPages = glob("$cache/cache/$search/$category/*.db");
+	$results = false;
+	$data_from = false;
+	if (count($cachedPages) > 0 && explode("\.", basename($cachedPages[0]))[0] > $expiration) { //try retreiving from cache
+		$data_from = "cache";
+		$results = unserialize(file_get_contents($cachedPages[0]));
+	} else { //defaults to curl if page not in cache
 		$curltime=time();
 		do{
 			$handle = curl_init("$pirate_url/search/".urlencode($search)."/0/7/$category");
@@ -212,35 +202,44 @@
 			$httpCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
 		} while ((empty($newPage) || $httpCode != 200) && time()-$curltime<2);
 		curl_close($handle);
-		if (!empty($newPage) && $httpCode == 200) {
-			if (count($cachedPages) > 0) unlink($cachedPages[0]);
-			elseif (!file_exists("$cache/$search/$category/")) {
-				mkdir("$cache/$search/$category/", 0777, true);
-			}
-			file_put_contents("$cache/$search/$category/" . time() . ".html", $newPage);
+
+		if (!empty($newPage) && $httpCode == 200) { // turn page into array
+			$data_from = "curl";
+			$doc = new DOMDocument('1.0', 'UTF-8');
+			libxml_use_internal_errors(true);
 			$doc->loadHTML($newPage);
-		} else {
-			$cachedPages = glob("$cache/$search/$category/*.html");
-			$in_archive = false;
-			if (count($cachedPages) > 0){
-				$str = file_get_contents($cachedPages[0]);
-				if(!empty($str)){
-					$doc->loadHTML($str);
-					$in_archive = true;
+			$results = array();
+			$daddyNode = $doc->getElementById($table_id);
+			if($daddyNode){
+				foreach ($daddyNode->childNodes as $node){
+					if(strcmp($node->nodeName, "thead") !== 0){
+						$items = $node->getElementsByTagName('td');
+						array_push($results, [
+							"main_type" => $categories[end(explode("/", $items->item(0)->getElementsByTagName('a')->item(0)->getAttribute('href')))],
+							"sub_type" => $categories[end(explode("/", $items->item(0)->getElementsByTagName('a')->item(1)->getAttribute('href')))],
+							"link" => $items->item(1)->getElementsByTagName('a')->item(0)->getAttribute('href'),
+							"id" => explode("/", $link)[2],
+							"title" => $items->item(1)->getElementsByTagName('a')->item(0)->nodeValue,
+							"magnet" => $items->item(1)->getElementsByTagName('a')->item(1)->getAttribute('href'),
+							"size" => explode(", ",  explode(", Size ", $items->item(1)->getElementsByTagName('font')->item(0)->nodeValue)[1])[0],
+							"seed" => $items->item(2)->nodeValue,
+							"leech" => $items->item(3)->nodeValue
+						]);
+					}
 				}
 			}
-			if(!$in_archive){
-				$w->result( '', '', "The query \"$search\" couldn't reach piratebay.", "We do not have \"$search\" in cache nor in the archives and piratebay can't be reached...", "", 'no', '' );
-				echo $w->toxml();
-				// <------------------------------------------------------------------ END POINT 3: error, piratebay unavailable
-				return;
-			}
+		} elseif (count($cachedPages) > 0) { //try retreiving from archive (= cache but w/o time limit)
+			$data_from = "archive";
+			$results = unserialize(file_get_contents($cachedPages[0]));
+		} else {
+			$w->result( '', '', "The query \"$search\" couldn't reach piratebay.", "We do not have \"$search\" in cache nor in the archives and piratebay can't be reached...", "", 'no', '' );
+			echo $w->toxml();
+			// <------------------------------------------------------------------ END POINT 3: error, piratebay unavailable
+			return;
 		}
 	}
 
-	//extracting results
-	$results = $doc->getElementById($table_id);
-	if(!$results){
+	if(count($results)==0){
 		$w->result( '', '', "No result for \"$search\"", "No hits. Try adding an asterisk in you search phrase.", "", 'no', '' );
 		echo $w->toxml();
 		// <-------------------------------------------------------------------------- END POINT 4: error, no result
@@ -253,34 +252,40 @@
 		$history = unserialize(file_get_contents("$cache/history.db"));
 	}
 
-	foreach ($results->childNodes as $node){
-		if(strcmp($node->nodeName, "thead") !== 0){
-			$items = $node->getElementsByTagName('td');
-			$main_type = $categories[end(explode("/", $items->item(0)->getElementsByTagName('a')->item(0)->getAttribute('href')))];
-			$sub_type  = $categories[end(explode("/", $items->item(0)->getElementsByTagName('a')->item(1)->getAttribute('href')))];
-			$link = $items->item(1)->getElementsByTagName('a')->item(0)->getAttribute('href');
-			$id = explode("/", $link)[2];
-			$title = $items->item(1)->getElementsByTagName('a')->item(0)->nodeValue;
-			$magnet = $items->item(1)->getElementsByTagName('a')->item(1)->getAttribute('href');
-			$size = explode(", ",  explode(", Size ", $items->item(1)->getElementsByTagName('font')->item(0)->nodeValue)[1])[0];
-			$seed = $items->item(2)->nodeValue;
-			$leech = $items->item(3)->nodeValue;
+	foreach ($results as $result){
+		$argument = serialize(array(
+			"id" => $result["id"],
+			"title" => $result["title"],
+			"magnet" => $result["magnet"],
+			"link" => $pirate_url.$result["link"],
+			"search" => "$pirate_url/search/".urlencode($search)."/0/7/$category")
+		);
 
-			$argument = serialize(array(
-				"id" => $id,
-				"title" => $title,
-				"magnet" => $magnet,
-				"link" => "$pirate_url$link",
-				"search" => "$pirate_url/search/".urlencode($search)."/0/7/$category")
-			);
+		$checkmark = (in_array($result["id"], $history) && $enable_history)?$history_symbol:"";
+		$subtitle = $checkmark.$result["main_type"]." (".$result["sub_type"]."), Size: ".$result["size"].", Seeders: ".$result["seed"].", Leechers: ".$result["leech"].", for \"$search\"".($data_from!="curl"?" (from $data_from)":"");
 
-			$checkmark = (in_array($id, $history) && $enable_history)?$history_symbol:"";
-
-			$w->result( $id, $argument, $title, "$checkmark$main_type ($sub_type), Size: $size, Seeders: $seed, Leechers: $leech, for \"$search\"", "", 'yes', " $title" );
-		}
+		$w->result(
+		           $result["id"],
+		           $argument,
+		           $result["title"],
+		           $subtitle,
+		           "",
+		           'yes',
+		           " ".$result["title"]
+		        );
 	}
 	// <-------------------------------------------------------------------------- END POINT 5: output results
 	echo $w->toxml();
+
+	// write serialized array to file if new
+	if($data_from=="curl"){
+		if (count($cachedPages) > 0) unlink($cachedPages[0]);
+		elseif (!file_exists("$cache/cache/$search/$category/")) {
+			mkdir("$cache/cache/$search/$category/", 0777, true);
+		}
+		file_put_contents("$cache/cache/$search/$category/" . time() . ".db", serialize($results));
+	}
+
 	return;
 
 ?>
