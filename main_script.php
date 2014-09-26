@@ -242,6 +242,7 @@
 	if(count($results)==0){
 		$w->result( '', '', "No result for \"$search\"", "No hits. Try adding an asterisk in you search phrase.", "", 'no', '' );
 		echo $w->toxml();
+		write_out_array();
 		// <-------------------------------------------------------------------------- END POINT 4: error, no result
 		return;
 	}
@@ -278,14 +279,17 @@
 	echo $w->toxml();
 
 	// write serialized array to file if new
-	if($data_from=="curl"){
-		if (count($cachedPages) > 0) unlink($cachedPages[0]);
-		elseif (!file_exists("$cache/cache/$search/$category/")) {
-			mkdir("$cache/cache/$search/$category/", 0777, true);
+	write_out_array();
+	function write_out_array(){
+		global $data_from, $cachedPages, $cache, $search, $category, $results;
+		if($data_from=="curl"){
+			if (count($cachedPages) > 0) unlink($cachedPages[0]);
+			elseif (!file_exists("$cache/cache/$search/$category/")) {
+				mkdir("$cache/cache/$search/$category/", 0777, true);
+			}
+			file_put_contents("$cache/cache/$search/$category/" . time() . ".db", serialize($results));
 		}
-		file_put_contents("$cache/cache/$search/$category/" . time() . ".db", serialize($results));
 	}
 
 	return;
-
 ?>
