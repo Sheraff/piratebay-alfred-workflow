@@ -1,33 +1,35 @@
 #!/bin/bash
 
-VAR="{query}"
+VAR="$1"
+bundle="florian.piratebay2"
+cache=${HOME}/Library/Application\ Support/Caches/com.runningwithcrayons.Alfred-2/Workflow\ Data/${bundle}
+# cache="debug"
+PHP_PID_FILE="${cache}/php.pid"
 
-if [[ -z "$VAR" ]]
-	bundle="florian.piratebay"
-	# cache="${HOME}/Library/Application Support/Caches/com.runningwithcrayons.Alfred-2/Workflow Data/${bundle}"
-	cache = "debug"
-
-	# The location of the pid file
-	PHP_PID_FILE="${cache}/php.pid"
-
-	# Make the cache dir if it doesn't exit
-	[[ ! -d "${cache}" ]] && mkdir -p "${cache}"
-
-	function launch_php() {
-	    nohup php -S localhost:6743 &> /dev/null &
-	    PHP_PID=$(echo $!)
-	    echo $PHP_PID > "${PHP_PID_FILE}"
-	    return 0
-	}
-
-	function launch_kill_script() {
-	    nohup ./kill_script.sh &> /dev/null &
-	    return 0
-	}
-
-	[[ ! -f ${PHP_PID_FILE} ]] && launch_php && launch_kill_script
-elif [[ -z "${VAR:1}" ]]; then
+# as soon as possible, try returning values
+if [[ "${#VAR}" -eq 0 ]] || [[ "$VAR" == " " ]]; then
+	# return statically stored result if query null
 	cat zero.xml
-else
-	curl --max-time 1 localhost:6743/main_script.php "${VAR:1}"
+elif [[ ${VAR:0:1} == " " ]] && [[ "${#VAR}" -gt 1 ]]; then
+	# if process doesn't exist yet but there is a query, do it the old fashion way (will happen when using Alfred's history) otherwise use existing server
+	if [[ ! -f ${PHP_PID_FILE} ]]; then
+		php main_script.php "${VAR:1}"
+	else
+		curl --max-time 1 localhost:6743/main_script.php -d query="${VAR:1}"
+	fi
 fi
+
+# make the cache dir if it doesn't exit
+[[ ! -d "${cache}" ]] && mkdir -p "${cache}"
+
+# kickoff thread handling scripts if process doesn't exist
+if [[ ! -f ${PHP_PID_FILE} ]]; then
+	# launch php and store the PID
+	nohup php -S localhost:6743 &> /dev/null &
+	echo $! > "${PHP_PID_FILE}"
+	# launch kill script
+	nohup ./kill_script.sh &> /dev/null &
+fi
+
+#remember last trigger time
+echo $(date +%s) > "${cache}/last" &

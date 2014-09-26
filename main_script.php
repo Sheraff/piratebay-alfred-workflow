@@ -10,7 +10,7 @@
 	//other vars
 	$table_id = "searchResult";
 	$category = 0;
-	$query = $argv[1];
+	$query = ($argv[1]?$argv[1]:$_POST["query"]);
 	require_once('workflows.php');
 	$w = new Workflows();
 	$cache = $w->cache();
@@ -121,7 +121,7 @@
 				$matched_category = true;
 				foreach ($categories as $key => $name) {
 					if($key%100==0){
-						$w->result( $key, $name, $name, "Tab to search for $name only", "", 'no', "$name$split_symbol" );
+						$w->result( $key, $name, $name, "Tab to search for $name only", "", 'no', " $name$split_symbol" );
 					}
 				}
 			} else {
@@ -133,7 +133,7 @@
 							if($key%100!=0){
 								$name = $categories[100*floor($key/100)].$split_symbol.$name;
 							}
-							$w->result( $key, $name, $name, "Tab to search for $name only", "", 'no', "$name$split_symbol" );
+							$w->result( $key, $name, $name, "Tab to search for $name only", "", 'no', " $name$split_symbol" );
 							break;
 						}
 					}
@@ -146,7 +146,7 @@
 				foreach ($categories as $key => $name) {
 					if(floor($key/100)==$main_category/100 && $key!=$main_category){
 						$name = $categories[$main_category].$split_symbol.$name;
-						$w->result( $key, $name, $name, "Tab to search for $name only", "", 'no', "$name$split_symbol" );
+						$w->result( $key, $name, $name, "Tab to search for $name only", "", 'no', " $name$split_symbol" );
 					}
 				}
 			} else {
@@ -157,7 +157,7 @@
 							if(strpos(strtolower($particule), strtolower(end($parts))) === 0){
 								$matched_category = true;
 								$name = $categories[$main_category].$split_symbol.$name;
-								$w->result( $key, $name, $name, "Tab to search for $name only", "", 'no', "$name$split_symbol" );
+								$w->result( $key, $name, $name, "Tab to search for $name only", "", 'no', " $name$split_symbol" );
 								break;
 							}
 						}
@@ -186,15 +186,20 @@
 	$doc = new DOMDocument('1.0', 'UTF-8');
 	libxml_use_internal_errors(true);
 
-	//try retreiving from cache
+	//try retreiving from cache // TODO: handle empty file
 	$cachedPages = glob("$cache/$search/$category/*.html");
 	$tempTime = explode("\.", basename($cachedPages[0]))[0];
+	$in_archive = false;
 	if (count($cachedPages) > 0 && $tempTime > $expiration) {
-		$doc->loadHTML(file_get_contents($cachedPages[0]));
+		$str = file_get_contents($cachedPages[0]);
+		if(!empty($str)){
+			$doc->loadHTML($str);
+			$in_archive = true;
+		}
 	}
 
 	//defaults to curl if page not in cache
-	if (count($cachedPages) <= 0 || $tempTime <= $expiration) {
+	if (count($cachedPages) <= 0 || $tempTime <= $expiration || !$in_archive) {
 		$handle = curl_init("$pirate_url/search/".urlencode($search)."/0/7/$category");
 		curl_setopt($handle, CURLOPT_RETURNTRANSFER, TRUE);
 		curl_setopt($handle, CURLOPT_FOLLOWLOCATION, 1);
@@ -265,7 +270,7 @@
 
 			$checkmark = (in_array($id, $history) && $enable_history)?$history_symbol:"";
 
-			$w->result( $id, $argument, $title, "$checkmark$main_type ($sub_type), Size: $size, Seeders: $seed, Leechers: $leech, for \"$search\"", "", 'yes', $title );
+			$w->result( $id, $argument, $title, "$checkmark$main_type ($sub_type), Size: $size, Seeders: $seed, Leechers: $leech, for \"$search\"", "", 'yes', " $title" );
 		}
 	}
 	// <-------------------------------------------------------------------------- END POINT 5: output results
