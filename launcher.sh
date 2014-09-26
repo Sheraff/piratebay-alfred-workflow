@@ -11,7 +11,7 @@ if [[ "${#VAR}" -eq 0 ]] || [[ "$VAR" == " " ]]; then
 	cat zero.xml
 elif [[ ${VAR:0:1} == " " ]] && [[ "${#VAR}" -gt 1 ]]; then
 	# if process doesn't exist yet but there is a query, do it the old fashion way (will happen when using Alfred's history) otherwise use existing server
-	if [[ ! -f ${PHP_PID_FILE} ]]; then
+	if [[ ! -f ${PHP_PID_FILE} ]] || ( ! ps -p $(cat "${PHP_PID_FILE}") > /dev/null ); then
 		php main_script.php "${VAR:1}"
 	else
 		curl localhost:6743/main_script.php -d query="${VAR:1}"
@@ -22,7 +22,7 @@ fi
 [[ ! -d "${cache}" ]] && mkdir -p "${cache}"
 
 # kickoff thread handling scripts if process doesn't exist
-if [[ ! -f ${PHP_PID_FILE} ]]; then
+if [[ ! -f ${PHP_PID_FILE} ]] || ( ! ps -p $(cat "${PHP_PID_FILE}") > /dev/null ); then
 	# launch php and store the PID
 	nohup php -S localhost:6743 &> /dev/null &
 	echo $! > "${PHP_PID_FILE}"
