@@ -1,9 +1,8 @@
 #!/bin/bash
 
 VAR="$1"
-bundle="florian.piratebay2"
+bundle="florian.piratebay"
 cache=${HOME}/Library/Application\ Support/Caches/com.runningwithcrayons.Alfred-2/Workflow\ Data/${bundle}
-# cache="debug"
 PHP_PID_FILE="${cache}/php.pid"
 
 # as soon as possible, try returning values

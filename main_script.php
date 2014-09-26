@@ -186,7 +186,7 @@
 	$doc = new DOMDocument('1.0', 'UTF-8');
 	libxml_use_internal_errors(true);
 
-	//try retreiving from cache // TODO: handle empty file
+	//try retreiving from cache
 	$cachedPages = glob("$cache/$search/$category/*.html");
 	$tempTime = explode("\.", basename($cachedPages[0]))[0];
 	$in_archive = false;

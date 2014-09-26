@@ -1,8 +1,7 @@
 #!/bin/bash
 
-bundle="florian.piratebay2"
+bundle="florian.piratebay"
 cache=${HOME}/Library/Application\ Support/Caches/com.runningwithcrayons.Alfred-2/Workflow\ Data/${bundle}
-# cache="debug"
 
 # The location of the pid file
 PHP_PID_FILE=${cache}/php.pid
