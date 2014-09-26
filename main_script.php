@@ -218,7 +218,7 @@
 							"main_type" => $categories[end(explode("/", $items->item(0)->getElementsByTagName('a')->item(0)->getAttribute('href')))],
 							"sub_type" => $categories[end(explode("/", $items->item(0)->getElementsByTagName('a')->item(1)->getAttribute('href')))],
 							"link" => $items->item(1)->getElementsByTagName('a')->item(0)->getAttribute('href'),
-							"id" => explode("/", $link)[2],
+							"id" => explode("/", $items->item(1)->getElementsByTagName('a')->item(0)->getAttribute('href'))[2],
 							"title" => $items->item(1)->getElementsByTagName('a')->item(0)->nodeValue,
 							"magnet" => $items->item(1)->getElementsByTagName('a')->item(1)->getAttribute('href'),
 							"size" => explode(", ",  explode(", Size ", $items->item(1)->getElementsByTagName('font')->item(0)->nodeValue)[1])[0],
