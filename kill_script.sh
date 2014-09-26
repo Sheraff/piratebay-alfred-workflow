@@ -19,7 +19,7 @@ die=0
 # We'll stay in a while loop until we're told to die.
 while [[ $die -eq 0 ]]; do
   # see if we get a response from the webserver
-  [[ $(curl --max-time 1 localhost:6743/ping.php) == "pong" ]] && sleep 1 || die=1
+  # [[ $(curl --max-time 1 localhost:6743/ping.php) == "pong" ]] && sleep 1 || die=1
 
   # Check to see if the status file has been updated
   updated=$(cat "${cache}/last") # this is a file that the PHP script updates
