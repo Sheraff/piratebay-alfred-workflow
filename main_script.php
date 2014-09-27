@@ -179,7 +179,7 @@
 		echo $w->toxml();
 		return;
 	}
-	$search = end($parts);
+	$search = trim(end($parts));
 
 
 
@@ -192,7 +192,7 @@
 	} else { //defaults to curl if page not in cache
 		$curltime=time();
 		do{
-			$handle = curl_init("$pirate_url/search/".urlencode($search)."/0/7/$category");
+			$handle = curl_init("$pirate_url/search/".urlencode($search)."*/0/7/$category");
 			curl_setopt($handle, CURLOPT_RETURNTRANSFER, TRUE);
 			curl_setopt($handle, CURLOPT_FOLLOWLOCATION, 1);
 			curl_setopt($handle, CURLOPT_CONNECTTIMEOUT, 20);
@@ -240,7 +240,7 @@
 	}
 
 	if(count($results)==0){
-		$w->result( '', '', "No result for \"$search\"", "No hits. Try adding an asterisk in you search phrase.", "", 'no', '' );
+		$w->result( '', '', "No result for \"$search\"", "No hits, even though we included an asterisk (*) to your search. ".($main_category>0?"Maybe try another category.":"Check orthography."), "", 'no', '' );
 		echo $w->toxml();
 		write_out_array();
 		// <-------------------------------------------------------------------------- END POINT 4: error, no result
@@ -264,6 +264,7 @@
 
 		$checkmark = (in_array($result["id"], $history) && $enable_history)?$history_symbol:"";
 		$subtitle = $checkmark.$result["main_type"]." (".$result["sub_type"]."), Size: ".$result["size"].", Seeders: ".$result["seed"].", Leechers: ".$result["leech"].", for \"$search\"".($data_from!="curl"?" (from $data_from)":"");
+		$autocomplete = " ".($main_category>0?($categories[$main_category].$split_symbol.($sub_category>0?$categories[$sub_category].$split_symbol:"")):"").$result["title"];
 
 		$w->result(
 		           $result["id"],
@@ -272,7 +273,7 @@
 		           $subtitle,
 		           "",
 		           'yes',
-		           " ".$result["title"]
+		           $autocomplete
 		        );
 	}
 	// <-------------------------------------------------------------------------- END POINT 5: output results
