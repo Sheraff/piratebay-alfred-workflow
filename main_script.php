@@ -121,7 +121,7 @@
 				$matched_category = true;
 				foreach ($categories as $key => $name) {
 					if($key%100==0){
-						$w->result( $key, $name, $name, "Tab to search for $name only", "", 'no', " $name$split_symbol" );
+						$w->result( $key, $name, $name, "Tab to search for $name only", "", 'no', "$name$split_symbol" );
 					}
 				}
 			} else {
@@ -133,7 +133,7 @@
 							if($key%100!=0){
 								$name = $categories[100*floor($key/100)].$split_symbol.$name;
 							}
-							$w->result( $key, $name, $name, "Tab to search for $name only", "", 'no', " $name$split_symbol" );
+							$w->result( $key, $name, $name, "Tab to search for $name only", "", 'no', "$name$split_symbol" );
 							break;
 						}
 					}
@@ -146,7 +146,7 @@
 				foreach ($categories as $key => $name) {
 					if(floor($key/100)==$main_category/100 && $key!=$main_category){
 						$name = $categories[$main_category].$split_symbol.$name;
-						$w->result( $key, $name, $name, "Tab to search for $name only", "", 'no', " $name$split_symbol" );
+						$w->result( $key, $name, $name, "Tab to search for $name only", "", 'no', "$name$split_symbol" );
 					}
 				}
 			} else {
@@ -157,7 +157,7 @@
 							if(strpos(strtolower($particule), strtolower(end($parts))) === 0){
 								$matched_category = true;
 								$name = $categories[$main_category].$split_symbol.$name;
-								$w->result( $key, $name, $name, "Tab to search for $name only", "", 'no', " $name$split_symbol" );
+								$w->result( $key, $name, $name, "Tab to search for $name only", "", 'no', "$name$split_symbol" );
 								break;
 							}
 						}
@@ -264,7 +264,7 @@
 
 		$checkmark = (in_array($result["id"], $history) && $enable_history)?$history_symbol:"";
 		$subtitle = $checkmark.$result["main_type"]." (".$result["sub_type"]."), Size: ".$result["size"].", Seeders: ".$result["seed"].", Leechers: ".$result["leech"].", for \"$search\"".($data_from!="curl"?" (from $data_from)":"");
-		$autocomplete = " ".($main_category>0?($categories[$main_category].$split_symbol.($sub_category>0?$categories[$sub_category].$split_symbol:"")):"").$result["title"];
+		$autocomplete = ($main_category>0?($categories[$main_category].$split_symbol.($sub_category>0?$categories[$sub_category].$split_symbol:"")):"").$result["title"];
 
 		$w->result(
 		           $result["id"],

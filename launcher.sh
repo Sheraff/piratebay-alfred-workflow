@@ -8,12 +8,12 @@ cache=${HOME}/Library/Application\ Support/Caches/com.runningwithcrayons.Alfred-
 PHP_PID_FILE="${cache}/php.pid"
 
 # as soon as possible, try returning values
-if [[ "${#VAR}" -eq 0 ]] || [[ "$VAR" == " " ]]; then
+if [[ "${#VAR}" -eq 0 ]]; then
 	# return statically stored result if query null
 	cat zero.xml
-elif [[ ${VAR:0:1} == " " ]] && [[ "${#VAR}" -gt 1 ]]; then
+elif [[ "${#VAR}" -gt 0 ]]; then
 	# give more time to php server to boot by handling first chars here
-	if [[ "${#VAR}" -lt $((min_query + 2)) ]]; then
+	if [[ "${#VAR}" -lt $((min_query + 1)) ]]; then
 		xml="<?xml version=\"1.0\"?><items>"
 		while read line; do
 			# category id case
@@ -25,13 +25,13 @@ elif [[ ${VAR:0:1} == " " ]] && [[ "${#VAR}" -gt 1 ]]; then
 				name="$main_cat$split_symbol${line:4}"
 			fi
 			words=$(echo ${line:4} | sed -e 's/[^a-zA-Z0-9]/ /g' | tr '[:upper:]' '[:lower:]')
-			query_test=$(echo ${VAR:1} | sed -e 's/[^a-zA-Z0-9]/ /g' | tr '[:upper:]' '[:lower:]')
+			query_test=$(echo $VAR | sed -e 's/[^a-zA-Z0-9]/ /g' | tr '[:upper:]' '[:lower:]')
 			# if [[ "$words" =~ $query_test ]] ; then
 			# 	xml="$xml<item uid=\"$key\" arg=\"$name\" valid=\"no\" autocomplete=\" $name$split_symbol\"><arg>$name</arg><title>$name</title><subtitle>Tab to search for $name only</subtitle></item>"
 			# fi
 			for word in $words; do
 				if [[ ${word:0:${#query_test}} == $query_test ]]; then
-					xml="$xml<item uid=\"$key\" arg=\"$name\" valid=\"no\" autocomplete=\" $name$split_symbol\"><arg>$name</arg><title>$name</title><subtitle>Tab to search for $name only</subtitle></item>"
+					xml="$xml<item uid=\"$key\" arg=\"$name\" valid=\"no\" autocomplete=\"$name$split_symbol\"><arg>$name</arg><title>$name</title><subtitle>Tab to search for $name only</subtitle></item>"
 					break
 				fi
 			done
@@ -40,9 +40,9 @@ elif [[ ${VAR:0:1} == " " ]] && [[ "${#VAR}" -gt 1 ]]; then
 	else
 		# if process doesn't exist yet but there is a query, do it the old fashion way (will happen when using Alfred's history) otherwise use existing server
 		if [[ ! -f ${PHP_PID_FILE} ]] || ( ! ps -p $(cat "${PHP_PID_FILE}") > /dev/null ); then
-			php main_script.php "${VAR:1}"
+			php main_script.php "$VAR"
 		else
-			curl localhost:6743/main_script.php -d query="${VAR:1}"
+			curl localhost:6743/main_script.php -d query="$VAR"
 		fi
 	fi
 fi

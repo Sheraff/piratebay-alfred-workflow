@@ -1,36 +1,36 @@
 <?xml version="1.0"?>
 <items>
-	<item uid="100" arg="Audio" valid="no" autocomplete=" Audio &#x2794; ">
+	<item uid="100" arg="Audio" valid="no" autocomplete="Audio &#x2794; ">
 		<arg>Audio</arg>
 		<title>Audio</title>
 		<subtitle>Tab to search for Audio only</subtitle>
 		<icon></icon>
 	</item>
-	<item uid="200" arg="Video" valid="no" autocomplete=" Video &#x2794; ">
+	<item uid="200" arg="Video" valid="no" autocomplete="Video &#x2794; ">
 		<arg>Video</arg>
 		<title>Video</title>
 		<subtitle>Tab to search for Video only</subtitle>
 		<icon></icon>
 	</item>
-	<item uid="300" arg="Applications" valid="no" autocomplete=" Applications &#x2794; ">
+	<item uid="300" arg="Applications" valid="no" autocomplete="Applications &#x2794; ">
 		<arg>Applications</arg>
 		<title>Applications</title>
 		<subtitle>Tab to search for Applications only</subtitle>
 		<icon></icon>
 	</item>
-	<item uid="400" arg="Games" valid="no" autocomplete=" Games &#x2794; ">
+	<item uid="400" arg="Games" valid="no" autocomplete="Games &#x2794; ">
 		<arg>Games</arg>
 		<title>Games</title>
 		<subtitle>Tab to search for Games only</subtitle>
 		<icon></icon>
 	</item>
-	<item uid="500" arg="Porn" valid="no" autocomplete=" Porn &#x2794; ">
+	<item uid="500" arg="Porn" valid="no" autocomplete="Porn &#x2794; ">
 		<arg>Porn</arg>
 		<title>Porn</title>
 		<subtitle>Tab to search for Porn only</subtitle>
 		<icon></icon>
 	</item>
-	<item uid="600" arg="Other" valid="no" autocomplete=" Other &#x2794; ">
+	<item uid="600" arg="Other" valid="no" autocomplete="Other &#x2794; ">
 		<arg>Other</arg>
 		<title>Other</title>
 		<subtitle>Tab to search for Other only</subtitle>
