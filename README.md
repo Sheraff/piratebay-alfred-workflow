@@ -1,6 +1,8 @@
 Piratebay workflow, [download link](https://github.com/Sheraff/piratebay-alfred-workflow/blob/master/Piratebay.alfredworkflow?raw=true "Piratebay.alfredworkflow")
 =========================
 
+**New Workflow:** I made a new workflow that needs beta testers. Come and get a peek at the [*TV Shows Manager*](https://github.com/Sheraff/tvshows-alfred-workflow "TV Shows Manager on github") for alfred, a neat replacement for Netflix! It remembers the shows you watch, tells you what episode is next (or where you stopped in the previous one), when it's out, and let's you stream it right from alfred. [Get this workflow here...](https://github.com/Sheraff/tvshows-alfred-workflow "TV Shows Manager on github").
+
 ## summary
 This is a workflow for [Alfred App](http://www.alfredapp.com/ "Alfred App official website") (Mac OSX) to crawl [piratebay](http://thepiratebay.se/ "the pirate bay") and return magnet links with proper information.
 
