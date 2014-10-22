@@ -152,8 +152,8 @@
 				}
 			} else {
 				//match relevant sub categories
-				if(strpos("top", strtolower(end($parts))) === 0)
-					$w->result( "top$main_category", "Top ".$categories[$main_category], "Top ".$categories[$main_category], "Tab to browse top ".$categories[$main_category], "", 'no', $categories[$main_category].$split_symbol."top" );
+				// if(strpos("top", strtolower(end($parts))) === 0)
+				// 	$w->result( "top$main_category", "Top ".$categories[$main_category], "Top ".$categories[$main_category], "Tab to browse top ".$categories[$main_category], "", 'no', $categories[$main_category].$split_symbol."top" );
 				foreach ($categories as $key => $name) {
 					if(floor($key/100)==$main_category/100 && $key!=$main_category){
 						foreach (preg_split("/[^a-zA-Z0-9]+/", $name) as $particule) {
@@ -176,7 +176,7 @@
 				$subtitle = "The query \"".end($parts)."\" is too short ; it requires ".($min_query+1-strlen(end($parts)))." more character".(strlen(end($parts))==$min_query?"":"s").".";
 			$w->result( '', '', "...", $subtitle, "", 'no', '' );
 			if(strlen(end($parts))==0 || strpos("top", strtolower(end($parts))) === 0)
-				$w->result( "top$category", "Top ".$categories[$category]." (".$categories[$main_category].")", "Top ".$categories[$category]." (".$categories[$main_category].")", "Tab to browse top ".$categories[$category]." (".$categories[$main_category].")", "", 'no', $categories[$main_category].$split_symbol.$categories[$category].$split_symbol."top" );
+				$w->result( "top$category", "Top ".$categories[$category].($category%100!=0?" (".$categories[$main_category].")":""), "Top ".$categories[$category].($category%100!=0?" (".$categories[$main_category].")":""), "Tab to browse top ".$categories[$category].($category%100!=0?" (".$categories[$main_category].")":""), "", 'no', $categories[$main_category].$split_symbol.$categories[$category].$split_symbol."top" );
 			echo $w->toxml();
 			return;
 		}
