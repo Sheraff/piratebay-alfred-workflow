@@ -113,7 +113,7 @@
 		$category = $sub_category;
 	}
 
-	if(!(strlen(end($parts))>$min_query)){
+	if(!(strlen(end($parts))>$min_query) && trim(end($parts))!="top"){
 		$matched_category = false;
 		if(count($parts)==1){ // there is no main category
 			if(strlen($query)==0){
@@ -143,6 +143,7 @@
 			if(strlen(end($parts))==0){
 				//output all relevant sub categories
 				$matched_category = true;
+				$w->result( "top$main_category", "Top ".$categories[$main_category], "Top ".$categories[$main_category], "Tab to browse top ".$categories[$main_category], "", 'no', $categories[$main_category].$split_symbol."top" );
 				foreach ($categories as $key => $name) {
 					if(floor($key/100)==$main_category/100 && $key!=$main_category){
 						$name = $categories[$main_category].$split_symbol.$name;
@@ -151,6 +152,8 @@
 				}
 			} else {
 				//match relevant sub categories
+				if(strpos("top", strtolower(end($parts))) === 0)
+					$w->result( "top$main_category", "Top ".$categories[$main_category], "Top ".$categories[$main_category], "Tab to browse top ".$categories[$main_category], "", 'no', $categories[$main_category].$split_symbol."top" );
 				foreach ($categories as $key => $name) {
 					if(floor($key/100)==$main_category/100 && $key!=$main_category){
 						foreach (preg_split("/[^a-zA-Z0-9]+/", $name) as $particule) {
@@ -172,6 +175,8 @@
 			else
 				$subtitle = "The query \"".end($parts)."\" is too short ; it requires ".($min_query+1-strlen(end($parts)))." more character".(strlen(end($parts))==$min_query?"":"s").".";
 			$w->result( '', '', "...", $subtitle, "", 'no', '' );
+			if(strlen(end($parts))==0 || strpos("top", strtolower(end($parts))) === 0)
+				$w->result( "top$category", "Top ".$categories[$category]." (".$categories[$main_category].")", "Top ".$categories[$category]." (".$categories[$main_category].")", "Tab to browse top ".$categories[$category]." (".$categories[$main_category].")", "", 'no', $categories[$main_category].$split_symbol.$categories[$category].$split_symbol."top" );
 			echo $w->toxml();
 			return;
 		}
@@ -192,7 +197,10 @@
 	} else { //defaults to curl if page not in cache
 		$curltime=time();
 		do{
-			$handle = curl_init("$pirate_url/search/".urlencode($search)."*/0/7/$category");
+			if($search=="top")
+				$handle = curl_init("$pirate_url/top/$category");
+			else
+				$handle = curl_init("$pirate_url/search/".urlencode($search)."*/0/7/$category");
 			curl_setopt($handle, CURLOPT_RETURNTRANSFER, TRUE);
 			curl_setopt($handle, CURLOPT_FOLLOWLOCATION, 1);
 			curl_setopt($handle, CURLOPT_CONNECTTIMEOUT, 20);
@@ -232,7 +240,10 @@
 			$data_from = "archive";
 			$results = unserialize(file_get_contents($cachedPages[0]));
 		} else {
-			$w->result( '', '', "The query \"$search\" couldn't reach piratebay.", "We do not have \"$search\" in cache nor in the archives and piratebay can't be reached...", "", 'no', '' );
+			if($search=="top")
+				$w->result( '', '', "The query for top ".$categories[$category]." couldn't reach piratebay.", "We do not have the top ".$categories[$category]." in cache nor in the archives and piratebay can't be reached...", "", 'no', '' );
+			else
+				$w->result( '', '', "The query \"$search\" couldn't reach piratebay.", "We do not have \"$search\" in cache nor in the archives and piratebay can't be reached...", "", 'no', '' );
 			echo $w->toxml();
 			// <------------------------------------------------------------------ END POINT 3: error, piratebay unavailable
 			return;
@@ -240,7 +251,10 @@
 	}
 
 	if(count($results)==0){
-		$w->result( '', '', "No result for \"$search\"", "No hits, even though we included an asterisk (*) to your search. ".($main_category>0?"Maybe try another category.":"Check orthography."), "", 'no', '' );
+		if($search=="top")
+			$w->result( '', '', "No top for ".$categories[$category], "There doesn't seem to be a top ".$categories[$category]." on piratebay.".($main_category>0?" Maybe try another category.":""), "", 'no', '' );
+		else
+			$w->result( '', '', "No result for \"$search\"", "No hits, even though we included an asterisk (*) to your search. ".($main_category>0?"Maybe try another category.":"Check orthography."), "", 'no', '' );
 		echo $w->toxml();
 		write_out_array();
 		// <-------------------------------------------------------------------------- END POINT 4: error, no result
