@@ -1,8 +1,12 @@
 Piratebay workflow, [download link](https://github.com/Sheraff/piratebay-alfred-workflow/blob/master/Piratebay.alfredworkflow?raw=true "Piratebay.alfredworkflow")
 =========================
 
-![paypal donation](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=NPLNPFS8GZ5LG)
-
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="hosted_button_id" value="NPLNPFS8GZ5LG">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+<img alt="" border="0" src="https://www.paypalobjects.com/fr_FR/i/scr/pixel.gif" width="1" height="1">
+</form>
 
 **New Workflow:** I made a new workflow that needs beta testers. Come and get a peek at the [*TV Shows Manager*](https://github.com/Sheraff/tvshows-alfred-workflow "TV Shows Manager on github") for alfred, a neat replacement for Netflix! It remembers the shows you watch, tells you what episode is next (or where you stopped in the previous one), when it's out, and let's you stream it right from alfred. [Get this workflow here...](https://github.com/Sheraff/tvshows-alfred-workflow "TV Shows Manager on github").
 
