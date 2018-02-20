@@ -1,6 +1,6 @@
 <?php
 	//user settings
-	$pirate_url = "http://thepiratebay.se"; //replace here with a proxy if the main address is blocked in your country
+	$pirate_url = "http://thepiratebay.com"; //replace here with a proxy if the main address is blocked in your country
 	$expiration = 2; //all searches will be kept in cache for 2 hours making every renewed search instant
 	$split_symbol = " ➔ "; //this is the string that goes between the category and the rest of the query
 	$history_symbol = "(✓) "; //this is the string that will be prefixed to the subtitle of torrent that has been downloaded (magnet or streaming)
